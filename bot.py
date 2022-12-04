@@ -5,73 +5,43 @@ import asyncio
 from aiogram import Bot, types, Dispatcher
 from aiogram.utils.markdown import hbold
 from aiogram.dispatcher.filters import Text
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from parser import check_reuters, check_forcklog, chek_ecb
+from parser import check_news
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 
+# '''to doo..., Добавить функцию, которая при нажатии на лайк, будет добавлять новость в избранное(новая таблица бд),
+# с возможностью проссмотреть избранные новости'''
 async def start(message: types.Message):
-    start_button = ['ECB', 'Forklog', 'Reuters']
+    start_button = ['Get news']
     keybord = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keybord.add(*start_button)
     await message.answer('News line', reply_markup=keybord)
 
 
-# send to user all news, testedet.py...
-async def ecb_news(event: types.Message):
+# send to user all news
+async def all_news(event: types.Message):
     while True:
-        news_dict = chek_ecb()
+        news_dict = check_news()
         if news_dict:
-            print(f'{news_dict} ecb')
-            for k, v in reversed(news_dict.items()):
-                news = f"{hbold(v['article_data_time'])}\n" \
-                       f"{v['article_link']}"
-                await event.answer(news)
+            print('Chek news...')
+            news = str(f"""{hbold(news_dict['article_data_time'])}\n{news_dict['article_link']}""")
+            await event.answer(news)
         else:
-            await event.answer("Ждем свежих новостей ecb")
-        await asyncio.sleep(30)
-
-
-async def forklog_news(event: types.Message):
-    while True:
-        news_dict = check_forcklog()
-        if news_dict:
-            print(f'{news_dict} fork')
-            for k, v in reversed(news_dict.items()):
-                news = f"{hbold(v['article_data_time'])}\n" \
-                       f"{v['article_link']}"
-
-                await event.answer(news)
-        else:
-            await event.answer("Ждем свежих новостей fork")
-        await asyncio.sleep(30)
-
-
-async def reuters_news(event: types.Message):
-    while True:
-        news_dict = check_reuters()
-        if news_dict:
-            print(f'{news_dict} reut')
-            for k, v in reversed(news_dict.items()):
-                news = f"{hbold(v['article_data_time'])}\n" \
-                       f"{v['article_link']}"
-
-                await event.answer(news)
-        else:
-            await event.answer("Ждем свежих новостей reut")
+            await event.answer("Ждем свежих новостей")
         await asyncio.sleep(30)
 
 
 # starting bot
+
 async def main():
     bot = Bot(token=BOT_TOKEN, parse_mode=types.ParseMode.HTML)
     try:
         disp = Dispatcher(bot=bot)
         disp.register_message_handler(start, commands={"start", "restart"})
-        disp.register_message_handler(ecb_news, Text(equals='ECB'))
-        disp.register_message_handler(forklog_news, Text(equals='Forklog'))
-        disp.register_message_handler(reuters_news, Text(equals='Reuters'))
+        disp.register_message_handler(all_news, Text(equals='Get news'))
         await disp.start_polling()
     finally:
         await bot.close()
