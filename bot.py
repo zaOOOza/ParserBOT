@@ -31,7 +31,7 @@ async def all_news(event: types.Message):
             await event.answer(news)
         else:
             await event.answer("Ждем свежих новостей")
-        await asyncio.sleep(30)
+        await asyncio.sleep(100)
 
 
 # starting bot

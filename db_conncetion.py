@@ -15,7 +15,7 @@ class DataBase(object):
         self.connection.close()
 
     def execute(self, new_data):
-        return self.cur.execute(new_data)
+        self.cur.execute(new_data)
 
     def executemany(self, many_data):
         self.create_table()

@@ -57,26 +57,29 @@ def check_reuters():
 
         article_title = article.find_next('span').find_next('span').find_next('span').text
         article_link = 'https://www.reuters.com' + article.find('a').get('href')
-        reuters_news[uuid.uuid4()] = {
+        reuters_news = {
             'article_link': article_link,
             'article_title': article_title,
             'article_data_time': article_data_time,
         }
-    return reuters_news
+        return reuters_news
 
 
 def check_news():
     ecb = chek_ecb()
     forklog = check_forcklog()
     reuters = check_reuters()
-    news = {**ecb, **forklog, **reuters}
-    for k, v in news.items():
+    newses = {**ecb, **forklog, **reuters}
+    for k, v in newses.items():
         article_link = v['article_link']
         article_title = v['article_title']
         article_data_time = v['article_data_time']
+        with DataBase() as db:
+            db.execute(f'INSERT INTO news VALUES ("{article_title}", "{article_link}", "{article_data_time}")')
+
         try:
             with DataBase() as db:
-                result = db.execute(f'SELECT link FROM news WHERE link="{article_link}"').fetchone()
+                result = db.cur.execute(f'SELECT link FROM news WHERE link="{article_link}"').fetchone()
                 if article_link in str(result):
                     continue
                 else:
@@ -91,8 +94,8 @@ def check_news():
 
 
 def main():
-    chek_ecb()
-    check_forcklog()
+    #chek_ecb()
+    #check_forcklog()
     check_reuters()
     check_news()
 
