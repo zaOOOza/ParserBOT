@@ -23,15 +23,13 @@ async def start(message: types.Message):
 
 # send to user all news
 async def all_news(event: types.Message):
+    news = check_news()
     while True:
-        news_dict = check_news()
-        if news_dict:
-            print('Chek news...')
-            news = str(f"""{hbold(news_dict['article_data_time'])}\n{news_dict['article_link']}""")
-            await event.answer(news)
-        else:
-            await event.answer("Ждем свежих новостей")
-        await asyncio.sleep(100)
+
+
+
+
+
 
 
 # starting bot
